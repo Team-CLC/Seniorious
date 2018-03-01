@@ -10,32 +10,32 @@ fun teaDecrypt(data: ByteArray, key: ByteArray) = jsEngine.eval("TEA.initkey('${
 private const val TEA_JS_CODE = """
 var key = "",
     paddings = 0,
-    temp = [],
-    z = [],
-    A = 0,
-    w = 0,
-    result = [],
-    v = [],
-    p = true;
+    current = [],
+    IVOrLastBlock = [],
+    cbcPtr = 0,
+    cbcPtr2 = 0,
+    CBCResult = [],
+    decryptTempV = [],
+    isFirstBlock = true;
 function getRandomNumber() {
     return Math.round(Math.random() * 0xffffffff);
 }
-function k(E, F, B) {
-    if (!B || B > 4) {
-        B = 4;
+function bytesToInt(bytes, offset, len) {
+    if (!len || len > 4) {
+        len = 4;
     }
-    var C = 0;
-    for (var D = F; D < F + B; D++) {
-        C <<= 8;
-        C |= E[D];
+    var res = 0;
+    for (var i = offset; i < offset + len; i++) {
+        res <<= 8;
+        res |= bytes[i];
     }
-    return (C & 0xffffffff) >>> 0;
+    return (res & 0xffffffff) >>> 0;
 }
-function b(C, D, B) {
-    C[D + 3] = (B >> 0) & 0xFF;
-    C[D + 2] = (B >> 8) & 0xFF;
-    C[D + 1] = (B >> 16) & 0xFF;
-    C[D + 0] = (B >> 24) & 0xFF;
+function intToBytes(bytes, offset, num) {
+    bytes[offset + 3] = (num >> 0) & 0xFF;
+    bytes[offset + 2] = (num >> 8) & 0xFF;
+    bytes[offset + 1] = (num >> 16) & 0xFF;
+    bytes[offset + 0] = (num >> 24) & 0xFF;
 }
 function bytesToHexString(bytes) {
     if (!bytes) {
@@ -100,10 +100,10 @@ function m(E) {
     return C.join("");
 }
 function encryptBytes(input) {
-    temp = new Array(8);
-    z = new Array(8);
-    A = w = 0;
-    p = true;
+    current = new Array(8);
+    IVOrLastBlock = new Array(8);
+    cbcPtr = cbcPtr2 = 0;
+    isFirstBlock = true;
     paddings = 0;
     var inputLen = input.length;
     var E = 0;
@@ -111,19 +111,19 @@ function encryptBytes(input) {
     if (paddings != 0) {
         paddings = 8 - paddings;
     }
-    result = new Array(inputLen + paddings + 10);
-    temp[0] = ((getRandomNumber() & 0xF8) | paddings) & 0xFF;
+    CBCResult = new Array(inputLen + paddings + 10);
+    current[0] = ((getRandomNumber() & 0xF8) | paddings) & 0xFF;
     for (var i = 1; i <= paddings; i++) {
-        temp[i] = getRandomNumber() & 0xFF;
+        current[i] = getRandomNumber() & 0xFF;
     }
     paddings++;
     for (var i = 0; i < 8; i++) {
-        z[i] = 0;
+        IVOrLastBlock[i] = 0;
     }
     E = 1;
     while (E <= 2) {
         if (paddings < 8) {
-            temp[paddings++] = getRandomNumber() & 0xFF;
+            current[paddings++] = getRandomNumber() & 0xFF;
             E++;
         }
         if (paddings == 8) {
@@ -133,7 +133,7 @@ function encryptBytes(input) {
     var i = 0;
     while (inputLen > 0) {
         if (paddings < 8) {
-            temp[paddings++] = input[i++];
+            current[paddings++] = input[i++];
             inputLen--;
         }
         if (paddings == 8) {
@@ -143,35 +143,35 @@ function encryptBytes(input) {
     E = 1;
     while (E <= 7) {
         if (paddings < 8) {
-            temp[paddings++] = 0;
+            current[paddings++] = 0;
             E++;
         }
         if (paddings == 8) {
             QQCBC();
         }
     }
-    return result;
+    return CBCResult;
 }
-function decryptBytes(F) {
-    var E = 0;
-    var C = new Array(8);
-    var B = F.length;
-    v = F;
-    if (B % 8 != 0 || B < 16) {
+function decryptBytes(input) {
+    var temp = 0;
+    var tempBuf = new Array(8);
+    var inputLen = input.length;
+    decryptTempV = input;
+    if (inputLen % 8 != 0 || inputLen < 16) {
         return null;
     }
-    z = teaDecrypt(F);
-    paddings = z[0] & 7;
-    E = B - paddings - 10;
-    if (E < 0) {
+    IVOrLastBlock = teaDecrypt(input);
+    paddings = IVOrLastBlock[0] & 7;
+    temp = inputLen - paddings - 10;
+    if (temp < 0) {
         return null;
     }
-    for (var D = 0; D < C.length; D++) {
-        C[D] = 0;
+    for (var D = 0; D < tempBuf.length; D++) {
+        tempBuf[D] = 0;
     }
-    result = new Array(E);
-    w = 0;
-    A = 8;
+    CBCResult = new Array(temp);
+    cbcPtr2 = 0;
+    cbcPtr = 8;
     paddings++;
     var G = 1;
     while (G <= 2) {
@@ -180,23 +180,23 @@ function decryptBytes(F) {
             G++;
         }
         if (paddings == 8) {
-            C = F;
+            tempBuf = input;
             if (!g()) {
                 return null;
             }
         }
     }
     var D = 0;
-    while (E != 0) {
+    while (temp != 0) {
         if (paddings < 8) {
-            result[D] = (C[w + paddings] ^ z[paddings]) & 0xFF;
+            CBCResult[D] = (tempBuf[cbcPtr2 + paddings] ^ IVOrLastBlock[paddings]) & 0xFF;
             D++;
-            E--;
+            temp--;
             paddings++;
         }
         if (paddings == 8) {
-            C = F;
-            w = A - 8;
+            tempBuf = input;
+            cbcPtr2 = cbcPtr - 8;
             if (!g()) {
                 return null;
             }
@@ -204,93 +204,93 @@ function decryptBytes(F) {
     }
     for (G = 1; G < 8; G++) {
         if (paddings < 8) {
-            if ((C[w + paddings] ^ z[paddings]) != 0) {
+            if ((tempBuf[cbcPtr2 + paddings] ^ IVOrLastBlock[paddings]) != 0) {
                 return null;
             }
             paddings++;
         }
         if (paddings == 8) {
-            C = F;
-            w = A;
+            tempBuf = input;
+            cbcPtr2 = cbcPtr;
             if (!g()) {
                 return null;
             }
         }
     }
-    return result;
+    return CBCResult;
 }
 //交织算法CBC加密
 function QQCBC() {
     for (var i = 0; i < 8; i++) {
-        if (p) {
-            temp[i] ^= z[i];
+        if (isFirstBlock) {
+            current[i] ^= IVOrLastBlock[i];
         } else {
-            temp[i] ^= result[w + i];
+            current[i] ^= CBCResult[cbcPtr2 + i];
         }
     }
-    var C = teaEncrypt(temp);
+    var C = teaEncrypt(current);
     for (var i = 0; i < 8; i++) {
-        result[A + i] = C[i] ^ z[i];
-        z[i] = temp[i];
+        CBCResult[cbcPtr + i] = C[i] ^ IVOrLastBlock[i];
+        IVOrLastBlock[i] = current[i];
     }
-    w = A;
-    A += 8;
+    cbcPtr2 = cbcPtr;
+    cbcPtr += 8;
     paddings = 0;
-    p = false;
+    isFirstBlock = false;
 }
-function teaEncrypt(B) {
-    var C = 16;
-    var H = k(B, 0, 4);
-    var G = k(B, 4, 4);
-    var J = k(key, 0, 4);
-    var I = k(key, 4, 4);
-    var F = k(key, 8, 4);
-    var E = k(key, 12, 4);
-    var D = 0;
-    var K = 0x9e3779b9 >>> 0;
-    while (C-- > 0) {
-        D += K;
-        D = (D & 0xffffffff) >>> 0;
-        H += ((G << 4) + J) ^ (G + D) ^ ((G >>> 5) + I);
-        H = (H & 0xffffffff) >>> 0;
-        G += ((H << 4) + F) ^ (H + D) ^ ((H >>> 5) + E);
-        G = (G & 0xffffffff) >>> 0;
+function teaEncrypt(input) {
+    var remainingRounds = 16;
+    var low = bytesToInt(input, 0, 4);
+    var high = bytesToInt(input, 4, 4);
+    var key1 = bytesToInt(key, 0, 4);
+    var key2 = bytesToInt(key, 4, 4);
+    var key3 = bytesToInt(key, 8, 4);
+    var key4 = bytesToInt(key, 12, 4);
+    var sum = 0;
+    var delta = 0x9e3779b9 >>> 0;
+    while (remainingRounds-- > 0) {
+        sum += delta;
+        sum = (sum & 0xffffffff) >>> 0;
+        low += ((high << 4) + key1) ^ (high + sum) ^ ((high >>> 5) + key2);
+        low = (low & 0xffffffff) >>> 0;
+        high += ((low << 4) + key3) ^ (low + sum) ^ ((low >>> 5) + key4);
+        high = (high & 0xffffffff) >>> 0;
     }
-    var L = new Array(8);
-    b(L, 0, H);
-    b(L, 4, G);
-    return L;
+    var output = new Array(8);
+    intToBytes(output, 0, low);
+    intToBytes(output, 4, high);
+    return output;
 }
 function teaDecrypt(bytes) {
     var remainingRounds = 16;
-    var H = k(bytes, 0, 4);
-    var G = k(bytes, 4, 4);
-    var J = k(key, 0, 4);
-    var I = k(key, 4, 4);
-    var F = k(key, 8, 4);
-    var E = k(key, 12, 4);
-    var D = 0xe3779b90 >>> 0;
-    var K = 0x9e3779b9 >>> 0;
+    var low = bytesToInt(bytes, 0, 4);
+    var high = bytesToInt(bytes, 4, 4);
+    var key1 = bytesToInt(key, 0, 4);
+    var key2 = bytesToInt(key, 4, 4);
+    var key3 = bytesToInt(key, 8, 4);
+    var key4 = bytesToInt(key, 12, 4);
+    var sum = 0xe3779b90 >>> 0;
+    var delta2 = 0x9e3779b9 >>> 0;
     while (remainingRounds-- > 0) {
-        G -= ((H << 4) + F) ^ (H + D) ^ ((H >>> 5) + E);
-        G = (G & 0xffffffff) >>> 0;
-        H -= ((G << 4) + J) ^ (G + D) ^ ((G >>> 5) + I);
-        H = (H & 0xffffffff) >>> 0;
-        D -= K;
-        D = (D & 0xffffffff) >>> 0;
+        high -= ((low << 4) + key3) ^ (low + sum) ^ ((low >>> 5) + key4);
+        high = (high & 0xffffffff) >>> 0;
+        low -= ((high << 4) + key1) ^ (high + sum) ^ ((high >>> 5) + key2);
+        low = (low & 0xffffffff) >>> 0;
+        sum -= delta2;
+        sum = (sum & 0xffffffff) >>> 0;
     }
     var L = new Array(8);
-    b(L, 0, H);
-    b(L, 4, G);
+    intToBytes(L, 0, low);
+    intToBytes(L, 4, high);
     return L;
 }
 function g() {
-    var B = v.length;
+    var B = decryptTempV.length;
     for (var i = 0; i < 8; i++) {
-        z[i] ^= v[A + i];
+        IVOrLastBlock[i] ^= decryptTempV[cbcPtr + i];
     }
-    z = teaDecrypt(z);
-    A += 8;
+    IVOrLastBlock = teaDecrypt(IVOrLastBlock);
+    cbcPtr += 8;
     paddings = 0;
     return true;
 }

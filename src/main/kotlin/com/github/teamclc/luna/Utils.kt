@@ -1,3 +1,4 @@
+@file:JvmName("Utils")
 package com.github.teamclc.luna
 
 fun intToByteArray(a: Int) = byteArrayOf(
