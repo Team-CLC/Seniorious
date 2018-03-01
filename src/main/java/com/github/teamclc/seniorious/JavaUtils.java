@@ -3,7 +3,7 @@ package com.github.teamclc.seniorious;
 public class JavaUtils {
     public static int bytesToInt(byte[] bytes, int offset) {
         int res = 0;
-        if (offset + 4 >= bytes.length)
+        if (offset + 4 > bytes.length)
             throw new ArrayIndexOutOfBoundsException();
         for (int i = offset; i < offset + 4;i++) {
             res <<= 8;

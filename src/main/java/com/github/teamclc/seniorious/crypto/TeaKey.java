@@ -12,7 +12,7 @@ public final class TeaKey {
     }
 
     public TeaKey(byte[] bytes, int offset) {
-        if (offset + 16 >= bytes.length)
+        if (offset + 16 > bytes.length)
             throw new ArrayIndexOutOfBoundsException();
         key1 = JavaUtils.bytesToInt(bytes, offset);
         key2 = JavaUtils.bytesToInt(bytes, offset + 4);
