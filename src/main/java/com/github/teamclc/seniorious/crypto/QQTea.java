@@ -3,6 +3,12 @@ package com.github.teamclc.seniorious.crypto;
 import com.github.teamclc.seniorious.Utils;
 import com.github.teamclc.seniorious.JavaUtils;
 
+/**
+ * QQTea 加密算法. <br />
+ * Translated from JS <br />
+ * @see <a href="http://blog.csdn.net/gsls200808/article/details/70837455">Refered blog</a>
+ * @see <a href="http://imgcache.qq.com/ptlogin/ver/10131/js/c_login_2.js">Original Javascript</a>
+ */
 public class QQTea {
     private static final int ROUNDS = 16;
     private static final int TEA_DELTA = 0x9e3779b9;
