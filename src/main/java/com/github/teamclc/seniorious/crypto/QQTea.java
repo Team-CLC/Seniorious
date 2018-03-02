@@ -1,6 +1,6 @@
 package com.github.teamclc.seniorious.crypto;
 
-import com.github.teamclc.luna.Utils;
+import com.github.teamclc.seniorious.Utils;
 import com.github.teamclc.seniorious.JavaUtils;
 
 public class QQTea {
@@ -88,7 +88,8 @@ public class QQTea {
         while (temp <= 2) {
             if (originalPtr < 8) {
                 originalPtr++; temp++;
-            } else if (originalPtr == 8) {
+            }
+            if (originalPtr == 8) {
                 tempBuf = input;
                 decryptUnknown1();
             }

@@ -1,5 +1,5 @@
 @file:JvmName("Utils")
-package com.github.teamclc.luna
+package com.github.teamclc.seniorious
 
 fun intToByteArray(a: Int) = byteArrayOf(
         (a shr 24 and 0xFF).toByte(),

@@ -1,4 +1,4 @@
-package com.github.teamclc.luna
+package com.github.teamclc.seniorious
 
 import com.github.teamclc.seniorious.crypto.QQTea
 import com.github.teamclc.seniorious.crypto.TeaKey

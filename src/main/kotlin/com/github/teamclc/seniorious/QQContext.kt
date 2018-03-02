@@ -1,4 +1,4 @@
-package com.github.teamclc.luna
+package com.github.teamclc.seniorious
 
 import java.net.DatagramSocket
 

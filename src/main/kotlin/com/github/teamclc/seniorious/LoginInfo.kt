@@ -1,11 +1,11 @@
-package com.github.teamclc.luna
+package com.github.teamclc.seniorious
 
 class LoginInfo(
-        val qqID: String,
-        password: String,
+        qqID: String,
+        val password: String,
         val visibility: LoginVisibility
 ) {
-    val passwordHex: ByteArray by lazy {
+    val qqIDHex: ByteArray by lazy {
         intToByteArray(qqID.toLong().toInt())
     }
 }

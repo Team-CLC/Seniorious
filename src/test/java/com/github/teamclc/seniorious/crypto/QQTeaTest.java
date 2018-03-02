@@ -1,6 +1,6 @@
 package com.github.teamclc.seniorious.crypto;
 
-import com.github.teamclc.luna.Utils;
+import com.github.teamclc.seniorious.Utils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
