@@ -1,13 +1,3 @@
-package com.github.teamclc.luna
-
-import javax.script.ScriptEngineManager
-
-val jsEngine = ScriptEngineManager().getEngineByName("JS").also { it.eval(TEA_JS_CODE) }
-
-fun teaEncrypt(data: ByteArray, key: ByteArray) = jsEngine.eval("TEA.initkey('${key.toHexString()}');TEA.encrypt('${data.toHexString()}')") as String
-fun teaDecrypt(data: ByteArray, key: ByteArray) = jsEngine.eval("TEA.initkey('${key.toHexString()}');TEA.decrypt('${data.toHexString()}')") as String
-
-private const val TEA_JS_CODE = """
 var key = "",
     paddings = 0,
     current = [],
@@ -336,5 +326,3 @@ TEA = {
     bytesInStr: bytesToHexString,
     dataFromStr: stringToBytes
 };
-
-        """

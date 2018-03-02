@@ -7,7 +7,7 @@ public class JavaUtils {
             throw new ArrayIndexOutOfBoundsException();
         for (int i = offset; i < offset + 4;i++) {
             res <<= 8;
-            res |= bytes[i];
+            res |= bytes[i] & 0xFF;
         }
         return res;
     }

@@ -53,7 +53,7 @@ public class QQTea {
         temp = 1;
         while (temp <= 7) {
             if (originalPtr < 8) {
-                current[originalPtr++] = (byte) (JavaUtils.getRandomNumber() & 0xFF);
+                current[originalPtr++] = 0;
                 temp++;
             } else if (originalPtr == 8)
                 calculateAndCBC();
@@ -187,10 +187,14 @@ public class QQTea {
         QQTea tea = new QQTea(new TeaKey(new byte[] {
                 (byte) 0xBA, 0x42, (byte) 0xFF, 0x01, (byte) 0xCF, (byte) 0xB4, (byte) 0xFF, (byte) 0xD2, 0x12, (byte) 0xF0, 0x6E, (byte) 0xA7, 0x1B, 0x7C, (byte) 0xB3, 0x08
         }));
+        byte[] x = new byte[8];
+        tea.teaEncryptGroup(new byte[] { 0x02, 0x03, 0x05, 0x07, 0x09, 0x15, 0x28, 0x39 }, x);
+        System.out.println(Utils.toHexString(x));
+
         byte[] ret = tea.decrypt(new byte[] {
                 0x16, (byte) 0xA3, 0x06, (byte) 0xCE, 0x2D, (byte) 0xBD, 0x2B, 0x72, (byte) 0xAB, 0x17, (byte) 0xFC, 0x7D, (byte) 0xE0, (byte) 0xFE, (byte) 0x89, (byte) 0xEA, (byte) 0xD1, 0x1F, 0x5D, (byte) 0x9B, 0x64, (byte) 0xEC, (byte) 0xCB, 0x69
         });
         System.out.println(ret.length);
-        System.out.println(Utils.bytesToHexString(ret));
+        System.out.println(Utils.toHexString(ret));
     }
 }
