@@ -8,6 +8,7 @@ import org.junit.Test;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
@@ -20,7 +21,8 @@ public class QQTeaTest {
     public void setUp() throws Exception {
         InputStream is = this.getClass().getResourceAsStream("/tea.js");
         byte[] temp = new byte[is.available()];
-        is.read(temp);
+        int r = is.read(temp);
+        if (r <= 0) throw new IOException();
         engine.eval(new String(temp));
     }
 
@@ -57,6 +59,29 @@ public class QQTeaTest {
             byte[] decryptedResult = tea.decrypt(encryptedResult);
 
             Assert.assertArrayEquals(originalData, decryptedResult);
+        }
+    }
+
+    @Test
+    public void testEncrypt() throws ScriptException {
+        for (int i = 0;i < TEST_ROUNDS;i++) {
+            Random random = new Random();
+
+            byte[] key = new byte[16];
+            random.nextBytes(key);
+
+            int len = random.nextInt(MAX_DATA_LEN);
+            byte[] originalData = new byte[len];
+            random.nextBytes(originalData);
+
+            QQTea tea = new QQTea(new TeaKey(key));
+            byte[] encryptedData = tea.encrypt(originalData);
+
+            String decryptedData = ((String) engine.eval("TEA.initkey('" + Utils.toHexString(key) + "');TEA.decrypt('" + Utils.toHexString(encryptedData) + "')"))
+                    .toLowerCase();
+            String originalString = Utils.toHexString(originalData);
+
+            Assert.assertEquals(originalString, decryptedData);
         }
     }
 

@@ -26,11 +26,11 @@ public class QQTea {
         cbcPtr = cbcPtr2 = 0;
 
         int inputLen = input.length;
-        originalPtr = (input.length + 10) % 8;
+        originalPtr = (inputLen + 10) % 8;
         if (originalPtr != 0) originalPtr = 8 - originalPtr;
 
         cbcResult = new byte[inputLen + originalPtr + 10];
-        current[0] = (byte) (((JavaUtils.getRandomNumber() & 0xF8) | originalPtr) & 0xFF);
+        current[0] = (byte) (((byte) (JavaUtils.getRandomNumber() & 0xF8 & 0xFF) | originalPtr) & 0xFF);
 
         for (int i = 1; i < originalPtr; i++) current[i] = (byte) (JavaUtils.getRandomNumber() & 0xFF);
         originalPtr++;
@@ -39,7 +39,8 @@ public class QQTea {
             if (originalPtr < 8) {
                 current[originalPtr++] = (byte) (JavaUtils.getRandomNumber() & 0xFF);
                 temp++;
-            } else if (originalPtr == 8)
+            }
+            if (originalPtr == 8)
                 calculateAndCBC();
         }
         temp = 0;
@@ -47,7 +48,8 @@ public class QQTea {
             if (originalPtr < 8) {
                 current[originalPtr++] = input[temp++];
                 inputLen--;
-            } else if (originalPtr == 8)
+            }
+            if (originalPtr == 8)
                 calculateAndCBC();
         }
         temp = 1;
@@ -55,7 +57,8 @@ public class QQTea {
             if (originalPtr < 8) {
                 current[originalPtr++] = 0;
                 temp++;
-            } else if (originalPtr == 8)
+            }
+            if (originalPtr == 8)
                 calculateAndCBC();
         }
 
@@ -87,8 +90,7 @@ public class QQTea {
                 originalPtr++; temp++;
             } else if (originalPtr == 8) {
                 tempBuf = input;
-                if (decryptUnknown1())
-                    throw new IllegalArgumentException();
+                decryptUnknown1();
             }
         }
 
@@ -99,11 +101,11 @@ public class QQTea {
                 temp++;
                 outputRemainingLen--;
                 originalPtr++;
-            } else if (originalPtr == 8) {
+            }
+            if (originalPtr == 8) {
                 tempBuf = input;
                 cbcPtr2 = cbcPtr - 8;
-                if (decryptUnknown1())
-                    throw new IllegalArgumentException();
+                decryptUnknown1();
             }
         }
 
@@ -112,32 +114,33 @@ public class QQTea {
                 if ((tempBuf[cbcPtr2 + originalPtr] ^ ivOrLastBlock[originalPtr]) != 0)
                     throw new IllegalArgumentException();
                 originalPtr++;
-            } else if (originalPtr == 8) {
+            }
+            if (originalPtr == 8) {
                 tempBuf = input;
                 cbcPtr2 = cbcPtr;
-                if (decryptUnknown1())
-                    throw new IllegalArgumentException();
+                decryptUnknown1();
             }
         }
         return cbcResult;
     }
 
-    private boolean decryptUnknown1() {
-        for (int i = 0;i < 8;i++)
+    int cnt = 0;
+    private void decryptUnknown1() {
+        cnt++;
+        int maxLen = Math.min(8, decryptTempV.length - cbcPtr);
+        for (int i = 0;i < maxLen;i++)
             ivOrLastBlock[i] ^= decryptTempV[cbcPtr + i];
         teaDecryptGroup(ivOrLastBlock, ivOrLastBlock);
         cbcPtr += 8;
         originalPtr = 0;
-        return false;
     }
 
     private void calculateAndCBC() {
-        for (int i = 0;i < 8;i++) {
+        for (int i = 0;i < 8;i++)
             if (isFirstBlock)
                 current[i] ^= ivOrLastBlock[i];
             else
                 current[i] ^= cbcResult[cbcPtr2 + i];
-        }
         teaEncryptGroup(current, cbcTemp);
         for (int i = 0;i < 8;i++) {
             cbcResult[cbcPtr + i] = (byte) ((cbcTemp[i] ^ ivOrLastBlock[i]) & 0xFF);
@@ -187,14 +190,17 @@ public class QQTea {
         QQTea tea = new QQTea(new TeaKey(new byte[] {
                 (byte) 0xBA, 0x42, (byte) 0xFF, 0x01, (byte) 0xCF, (byte) 0xB4, (byte) 0xFF, (byte) 0xD2, 0x12, (byte) 0xF0, 0x6E, (byte) 0xA7, 0x1B, 0x7C, (byte) 0xB3, 0x08
         }));
-        byte[] x = new byte[8];
-        tea.teaEncryptGroup(new byte[] { 0x02, 0x03, 0x05, 0x07, 0x09, 0x15, 0x28, 0x39 }, x);
-        System.out.println(Utils.toHexString(x));
+        /*byte[] x = tea.encrypt(new byte[] { 0x02, 0x03, 0x05, 0x07, 0x09, 0x15, 0x28, 0x39 });
+        System.out.println(Utils.toHexString(x));*/
+
+        //tea.teaDecryptGroup(new byte[] {(byte) 0x88, (byte) 0x7f, (byte) 0xff, (byte) 0xd3, (byte) 0xfc, (byte) 0xb7, 0x45, (byte) 0x33}, x);
+        //System.out.println(Utils.toHexString(x));
 
         byte[] ret = tea.decrypt(new byte[] {
                 0x16, (byte) 0xA3, 0x06, (byte) 0xCE, 0x2D, (byte) 0xBD, 0x2B, 0x72, (byte) 0xAB, 0x17, (byte) 0xFC, 0x7D, (byte) 0xE0, (byte) 0xFE, (byte) 0x89, (byte) 0xEA, (byte) 0xD1, 0x1F, 0x5D, (byte) 0x9B, 0x64, (byte) 0xEC, (byte) 0xCB, 0x69
         });
         System.out.println(ret.length);
         System.out.println(Utils.toHexString(ret));
+        System.out.println(tea.cnt);
     }
 }

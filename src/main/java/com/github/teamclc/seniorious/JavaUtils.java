@@ -21,5 +21,6 @@ public class JavaUtils {
 
     public static int getRandomNumber() {
         return (int) Math.round(Math.random() * 0xFFFFFFFF);
+        //return 0;
     }
 }
