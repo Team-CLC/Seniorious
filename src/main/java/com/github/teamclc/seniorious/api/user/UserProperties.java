@@ -2,7 +2,7 @@ package com.github.teamclc.seniorious.api.user;
 
 import com.github.teamclc.seniorious.api.data.property.PropertyKey;
 import com.github.teamclc.seniorious.api.data.property.dummy.DummyPropertyKey;
-import com.github.teamclc.seniorious.api.group.GroupPrivileges;
+import com.github.teamclc.seniorious.api.lobby.GroupPrivileges;
 
 import java.time.Instant;
 
