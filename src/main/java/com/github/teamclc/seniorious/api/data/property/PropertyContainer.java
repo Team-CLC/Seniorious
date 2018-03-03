@@ -1,11 +1,14 @@
 package com.github.teamclc.seniorious.api.data.property;
 
-public interface PropertyContainer extends Iterable<Object> {
-    <T> T first(PropertyKey<T> key);
-    <T> T last(PropertyKey<T> key);
+import java.util.List;
+import java.util.Optional;
 
-    <T> T addProperty(PropertyKey<T> key, T value);
+public interface PropertyContainer extends Iterable<List<?>> {
+    <T> Optional<T> first(PropertyKey<T> key);
+    <T> Optional<T> last(PropertyKey<T> key);
 
-    <T> T removeFirst(PropertyKey<T> key);
-    <T> T removeLast(PropertyKey<T> key);
+    <T> Optional<T> addProperty(PropertyKey<T> key, T value);
+
+    <T> Optional<T> removeFirst(PropertyKey<T> key);
+    <T> Optional<T> removeLast(PropertyKey<T> key);
 }

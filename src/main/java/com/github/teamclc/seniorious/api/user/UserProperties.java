@@ -2,7 +2,7 @@ package com.github.teamclc.seniorious.api.user;
 
 import com.github.teamclc.seniorious.api.data.property.PropertyKey;
 import com.github.teamclc.seniorious.api.data.property.dummy.DummyPropertyKey;
-import com.github.teamclc.seniorious.api.group.GroupPrivileges;
+import com.github.teamclc.seniorious.api.lobby.GroupPrivileges;
 
 import java.time.Instant;
 
@@ -16,6 +16,8 @@ public interface UserProperties {
     PropertyKey<Integer> SCORE = new DummyPropertyKey<>(Integer.class, "user:score");
 
     PropertyKey<Instant> JOIN_TIME = new DummyPropertyKey<>(Instant.class, "user:join_time");
+
+    PropertyKey<Instant> LAST_MESSAGE_TIME = new DummyPropertyKey<>(Instant.class, "user:last_message_time");
 
     PropertyKey<GroupPrivileges> PRIVILEGE = new DummyPropertyKey<>(GroupPrivileges.class, "user:group_privilege");
 
