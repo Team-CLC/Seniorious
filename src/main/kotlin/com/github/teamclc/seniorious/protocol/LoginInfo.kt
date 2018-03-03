@@ -1,4 +1,7 @@
-package com.github.teamclc.seniorious
+package com.github.teamclc.seniorious.protocol
+
+import com.github.teamclc.seniorious.intToByteArray
+import java.net.DatagramSocket
 
 class LoginInfo(
         qqID: String,
@@ -8,6 +11,7 @@ class LoginInfo(
     val qqIDHex: ByteArray by lazy {
         intToByteArray(qqID.toLong().toInt())
     }
+    val listeningSocket = DatagramSocket()
 }
 
 enum class LoginVisibility(val code: Byte) {
