@@ -22,10 +22,8 @@ fun ByteArray.toHexString(): String {
 fun String.asHexStringToByteArray(): ByteArray {
     val t = trim()
     val bytes = ByteArray(t.length / 2)
-    var i = 0
-    while (i < t.length / 2) {
-        bytes[i] = (Integer.parseInt(t.substring(i * 2, i * 2 + 2), 16) and 0xFF).toByte()
-        i++
+    t.chunked(2).forEachIndexed { i, s ->
+        bytes[i] = (Integer.parseInt(s, 16) and 0xFF).toByte()
     }
     return bytes
 }

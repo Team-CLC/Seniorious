@@ -1,6 +1,5 @@
 package com.github.teamclc.seniorious.crypto;
 
-import com.github.teamclc.seniorious.Utils;
 import com.github.teamclc.seniorious.JavaUtils;
 
 /**
@@ -191,23 +190,5 @@ public class QQTea {
         }
         JavaUtils.writeIntToBytes(low, output, 0);
         JavaUtils.writeIntToBytes(high, output, 4);
-    }
-
-    public static void main(String[] args) {
-        QQTea tea = new QQTea(new TeaKey(new byte[] {
-                (byte) 0xBA, 0x42, (byte) 0xFF, 0x01, (byte) 0xCF, (byte) 0xB4, (byte) 0xFF, (byte) 0xD2, 0x12, (byte) 0xF0, 0x6E, (byte) 0xA7, 0x1B, 0x7C, (byte) 0xB3, 0x08
-        }));
-        /*byte[] x = tea.encrypt(new byte[] { 0x02, 0x03, 0x05, 0x07, 0x09, 0x15, 0x28, 0x39 });
-        System.out.println(Utils.toHexString(x));*/
-
-        //tea.teaDecryptGroup(new byte[] {(byte) 0x88, (byte) 0x7f, (byte) 0xff, (byte) 0xd3, (byte) 0xfc, (byte) 0xb7, 0x45, (byte) 0x33}, x);
-        //System.out.println(Utils.toHexString(x));
-
-        byte[] ret = tea.decrypt(new byte[] {
-                0x16, (byte) 0xA3, 0x06, (byte) 0xCE, 0x2D, (byte) 0xBD, 0x2B, 0x72, (byte) 0xAB, 0x17, (byte) 0xFC, 0x7D, (byte) 0xE0, (byte) 0xFE, (byte) 0x89, (byte) 0xEA, (byte) 0xD1, 0x1F, 0x5D, (byte) 0x9B, 0x64, (byte) 0xEC, (byte) 0xCB, 0x69
-        });
-        System.out.println(ret.length);
-        System.out.println(Utils.toHexString(ret));
-        System.out.println(tea.cnt);
     }
 }
