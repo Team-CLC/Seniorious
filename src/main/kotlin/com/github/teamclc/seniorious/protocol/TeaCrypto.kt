@@ -1,4 +1,4 @@
-package com.github.teamclc.seniorious
+package com.github.teamclc.seniorious.protocol
 
 import com.github.teamclc.seniorious.crypto.QQTea
 import com.github.teamclc.seniorious.crypto.TeaKey
