@@ -101,7 +101,7 @@ public class QQTeaTest {
                     .toLowerCase();
 
             QQTea tea = new QQTea(new TeaKey(key));
-            byte[] javaResult = tea.decrypt(Utils.asHexStringToByteArray(encryptedData));
+            byte[] javaResult = tea.decrypt(Utils.asHexStringToBytes(encryptedData));
 
             Assert.assertArrayEquals(originalData, javaResult);
         }

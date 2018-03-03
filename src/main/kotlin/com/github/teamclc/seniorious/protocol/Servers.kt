@@ -2,8 +2,12 @@ package com.github.teamclc.seniorious.protocol
 
 import java.net.InetAddress
 
-val qqServers: Map<String, InetAddress> = LinkedHashMap<String, InetAddress>().also {
-    updateQQServers(it)
+const val QQ_SERVER_PORT = 8000
+
+val qqServers: MutableMap<String, InetAddress> by lazy {
+    LinkedHashMap<String, InetAddress>().also {
+        updateQQServers(it)
+    }
 }
 
 private val qqServerSZ1 = InetAddress.getByName("183.60.56.29")

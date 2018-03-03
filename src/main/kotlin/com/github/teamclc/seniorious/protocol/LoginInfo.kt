@@ -1,16 +1,16 @@
 package com.github.teamclc.seniorious.protocol
 
-import com.github.teamclc.seniorious.api.user.UserStatues
+import com.github.teamclc.seniorious.api.user.UserStatus
 import com.github.teamclc.seniorious.intToByteArray
-import java.net.DatagramSocket
+import java.net.InetAddress
 
 class LoginInfo(
-        qqID: String,
+        val qqNumber: String,
         val password: String,
-        val visibility: UserStatues
+        val visibility: UserStatus,
+        val server: InetAddress = qqServers.values.first()
 ) {
-    val qqIDHex: ByteArray by lazy {
-        intToByteArray(qqID.toLong().toInt())
+    val qqNumberHex: ByteArray by lazy {
+        intToByteArray(qqNumber.toLong().toInt())
     }
-    val listeningSocket = DatagramSocket()
 }

@@ -1,6 +1,6 @@
 package com.github.teamclc.seniorious.api.user;
 
-public enum UserStatues {
+public enum UserStatus {
     ONLINE(0x0A),
     Q_ME_PLEASE(0x3C),
     AFK(0x1E),
@@ -10,7 +10,7 @@ public enum UserStatues {
 
     private final byte id;
 
-    UserStatues(int id) {
+    UserStatus(int id) {
         this.id = (byte) id;
     }
 

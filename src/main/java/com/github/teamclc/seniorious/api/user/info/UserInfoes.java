@@ -3,7 +3,7 @@ package com.github.teamclc.seniorious.api.user.info;
 import com.github.teamclc.seniorious.api.data.property.PropertyKey;
 import com.github.teamclc.seniorious.api.data.property.dummy.DummyPropertyKey;
 import com.github.teamclc.seniorious.api.user.Genders;
-import com.github.teamclc.seniorious.api.user.UserStatues;
+import com.github.teamclc.seniorious.api.user.UserStatus;
 
 import java.time.Instant;
 
@@ -18,7 +18,7 @@ public interface UserInfoes {
     PropertyKey<Short> HEADER = new DummyPropertyKey<>(Short.class, "user_info:header");
     PropertyKey<Short> LEVEL = new DummyPropertyKey<>(Short.class, "user_info:level");
     PropertyKey<Byte> QQ_AGE = new DummyPropertyKey<>(Byte.class, "user_info:qq_age");
-    PropertyKey<UserStatues> STATUS = new DummyPropertyKey<>(UserStatues.class, "user_info:status");
+    PropertyKey<UserStatus> STATUS = new DummyPropertyKey<>(UserStatus.class, "user_info:status");
     PropertyKey<String> HOMETOWN = new DummyPropertyKey<>(String.class, "user_info:hometown");
     PropertyKey<String> HOME_PAGE = new DummyPropertyKey<>(String.class, "user_info:home_page");
     PropertyKey<String> BIO = new DummyPropertyKey<>(String.class, "user_info:bio");
